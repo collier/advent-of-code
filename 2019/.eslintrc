@@ -1,0 +1,16 @@
+{
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 2019
+  },
+  "env": {
+    "node": true
+  },
+  "extends": "eslint:recommended",
+  "rules": {
+    "no-console":"off"
+  },
+  "globals": {
+    "import": "readonly"
+  }
+}
