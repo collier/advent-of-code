@@ -1,9 +1,9 @@
 import { readFileSync } from 'fs';
 
 const input = readFileSync('./day02/day02-input.txt', 'utf-8');
-const initMemory = input.split(',').map(massStr => parseInt(massStr));
+const initMemory = input.split(',').map(n => parseInt(n));
 
-function calc(initMemory, noun, verb) {
+function intcode(initMemory, noun, verb) {
   let memo = initMemory.slice();
   memo[1] = noun;
   memo[2] = verb;
@@ -22,12 +22,12 @@ function calc(initMemory, noun, verb) {
   return [memo[0], memo[1], memo[2]];
 }
 
-const answer1 = calc(initMemory, 12, 2)[0];
+const answer1 = intcode(initMemory, 12, 2)[0];
 
 let answer2;
 for(let i = 0; i < 100; i++) {
   for(let j = 0; j < 100; j++) {
-    const result = calc(initMemory, i, j);
+    const result = intcode(initMemory, i, j);
     if(result[0] === 19690720) {
       answer2 = 100 * result[1] + result[2];
       break;
