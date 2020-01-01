@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 
-const data = readFileSync('./day01-input.txt', 'utf-8');
-const masses = data.split('\r\n').map(massStr => parseInt(massStr));
+const input = readFileSync('./day01/day01-input.txt', 'utf-8');
+const masses = input.split('\r\n').map(massStr => parseInt(massStr));
 
 function fuelCost(mass) {
   return Math.floor(mass / 3) - 2;
@@ -10,8 +10,6 @@ function fuelCost(mass) {
 const answer1 = masses.reduce((sum, mass) => {
   return sum + fuelCost(mass);
 }, 0);
-
-console.log(`Answer 1 is: ${answer1}`);
 
 function fullFuelCost(mass) {
   const fuel = fuelCost(mass);
@@ -26,4 +24,5 @@ const answer2 = masses.reduce((sum, mass) => {
   return sum + fullFuelCost(mass);
 }, 0);
 
-console.log(`Answer 2 is: ${answer2}`);
+console.log(`Answer 1: ${answer1}`); //3315133
+console.log(`Answer 2: ${answer2}`); //4969831

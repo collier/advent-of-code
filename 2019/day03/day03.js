@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 
-const data = readFileSync('./day03-input.txt', 'utf-8');
-const [wireA, wireB] = data.split('\n').map(line => line.split(','));
+const input = readFileSync('./day03/day03-input.txt', 'utf-8');
+const [wireA, wireB] = input.split('\n').map(line => line.split(','));
 
 function toCoords(wire) {
   let coords = [[0,0,'U']];
@@ -112,9 +112,9 @@ function findSmallestSteps(coordsWithSteps) {
 const segmentsA = toSegments(toCoords(wireA));
 const segmentsB = toSegments(toCoords(wireB));
 const intersectCoords = toIntsectCoords(segmentsA, segmentsB);
-const smallestManhattanDistance = findSmallestManhattanDistance(intersectCoords);
-const smallestSteps = findSmallestSteps(intersectCoords);
+const answer1 = findSmallestManhattanDistance(intersectCoords);
+const answer2 = findSmallestSteps(intersectCoords);
 
-console.log(`Answer 1 is: ${smallestManhattanDistance}`); // 207
-console.log(`Answer 2 is: ${smallestSteps}`); // 21196
+console.log(`Answer 1: ${answer1}`); // 207
+console.log(`Answer 2: ${answer2}`); // 21196
 
