@@ -4,7 +4,7 @@ const input = readFileSync('./day05/day05-input.txt', 'utf-8');
 const initMemory = input.split(',').map(n => parseInt(n));
 
 function intcode(initMemory, input) {
-  let memo = initMemory.slice();
+  const memo = initMemory.slice();
   let i = 0;
   let lastOutput;
   while(i < memo.length) {

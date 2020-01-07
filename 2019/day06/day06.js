@@ -1,44 +1,57 @@
 import { readFileSync } from 'fs';
 
 const input = readFileSync('./day06/day06-input.txt', 'utf-8');
-// const orbits = input.split('\r\n').map(rel => rel.split(')'));
+const orbits = input.split('\r\n').map(rel => rel.split(')'));
 
-const orbits = [
-  ['COM','B'],
-  ['B','C'],
-  ['C','D'],
-  ['D','E'],
-  ['E','F'],
-  ['B','G'],
-  ['G','H'],
-  ['D','I'],
-  ['E','J'],
-  ['J','K'],
-  ['K','L']
-];
-
-// Make COM the first orbit map entry
-const comIndex = orbits.findIndex(orbit => {
-  return orbit[0] === 'COM';
-});
-[orbits[0], orbits[comIndex]] = [orbits[comIndex], orbits[0]];
-
-function buildTree(orbit) {
-  const [m0, m1] = orbit;
-  const childOrbits = orbits.filter(orbit => orbit[0] === m0);
-  if(!childOrbits.length) {
-    return {
-      value: m0,
-      nodes: [{value: m1}]
-    };
-  }
-  const childNodes = childOrbits.map(childOrbit => buildTree(childOrbit));
+function buildTree(centerMass) {
+  const orbitMasses = orbits
+    .filter(orbit => orbit[0] === centerMass)
+    .map(orbit => buildTree(orbit[1]))
   return {
-    value: m0,
-    nodes: childNodes
-  };
+    value: centerMass,
+    nodes: orbitMasses
+  }
 }
 
-const orbitTree = buildTree(orbits[0]);
+function orbitCount(orbitTree, depth = 0) {
+  const nodes = orbitTree.nodes;
+  if(!nodes.length) {
+    return depth;
+  }
+  return nodes
+    .map(node => orbitCount(node, depth + 1))
+    .reduce((sum, n) => sum + n, 0) + depth;
+}
 
-console.log(orbitTree);
+function pathToMass(orbitTree, mass, path = []) {
+  const { value, nodes } = orbitTree;
+  const newPath = [...path, value];
+  if(!nodes.length || value === mass) {
+    return newPath;
+  }
+  const paths = nodes.map(node => pathToMass(node, mass, newPath));
+  const targetPath = paths.find(path => path.find(step => step === mass));
+  return targetPath || newPath;
+}
+
+function minOrbitTransfers(orbitTree, massA, massB) {
+  const pathA = pathToMass(orbitTree, massA);
+  const pathB = pathToMass(orbitTree, massB);
+  let commonOrbitIndex;
+  for(let i = 0; i < pathA.length; i++) {
+    if(pathA[i] !== pathB[i]) {
+      commonOrbitIndex = i - 1;
+      break;
+    }
+  }
+  const transfersA = pathA.slice(commonOrbitIndex + 1, pathA.length - 1).length;
+  const transfersB = pathB.slice(commonOrbitIndex + 1, pathB.length - 1).length;
+  return transfersA + transfersB;
+}
+
+const orbitTree = buildTree('COM');
+const answer1 = orbitCount(orbitTree);
+const answer2 = minOrbitTransfers(orbitTree, 'YOU', 'SAN');
+
+console.log(`Answer 1: ${answer1}`); // 245089
+console.log(`Answer 1: ${answer2}`); // 511
