@@ -1,13 +1,16 @@
-export default function(initMemory, input) {
+export default function({ initMemory, inputs, startingIndex, stopOnFirstOutput }) {
   const memo = initMemory.slice();
-  let i = 0;
-  let lastOutput;
+  let i = startingIndex || 0;
   let inputIndex = 0;
+  let lastOutput;
+  let lastOpcode;
+  let lastMemo;
   while(i < memo.length) {
     const instructions = memo[i].toString();
     let opcode = instructions.substring(instructions.length - 2);
     let modes = instructions.substring(0, instructions.length - 2);
     opcode = opcode.length === 1 ? '0' + opcode : opcode;
+    lastOpcode = opcode;
     if(modes.length === 0) {
       modes = '00';
     }
@@ -23,13 +26,16 @@ export default function(initMemory, input) {
       memo[memo[i+3]] = param1 * param2;
       i += 4;
     } else if(opcode === '03') { // input update
-      memo[memo[i+1]] = input[inputIndex];
+      memo[memo[i+1]] = inputs[inputIndex];
       inputIndex++;
       i += 2;
     } else if(opcode === '04') { // output
       // console.log(`Output: ${param1}`);
       lastOutput = param1;
       i += 2;
+      if(stopOnFirstOutput) {
+        break;
+      }
     } else if(opcode === '05') { // jump-if-true
       if(param1 !== 0) {
         i = param2;
@@ -51,6 +57,7 @@ export default function(initMemory, input) {
     } else if(opcode === '99') {
       break;
     }
+    lastMemo = memo;
   }
-  return lastOutput;
+  return {output: lastOutput, index: i, opcode: lastOpcode, memory: lastMemo};
 }
