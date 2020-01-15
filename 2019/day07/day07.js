@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import intcode from '../day05/intcode.js';
+import intcode from '../intcode.js';
 
 const input = readFileSync('./day07/day07-input.txt', 'utf-8');
 const initMemory = input.split(',').map(n => parseInt(n));
