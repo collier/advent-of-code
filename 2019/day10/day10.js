@@ -6,18 +6,21 @@ const space = input.split('\r\n').map(row => row.split(''));
 function findSlope(p1, p2) {
   const [ x1, y1 ] = p1;
   const [ x2, y2 ] = p2;
-  const slope = (y2 - y1) / (x2 - x1);
-  let quad;
+  return (y2 - y1) / (x2 - x1);
+}
+
+function findQuadrant(p1, p2) {
+  const [ x1, y1 ] = p1;
+  const [ x2, y2 ] = p2;
   if(x2 >= x1 && y2 < y1) {
-    quad = 1;
+    return 1;
   } else if(x2 > x1 && y2 >= y1) {
-    quad = 2;
+    return 2;
   } else if(x2 <= x1 && y2 > y1) {
-    quad = 3;
+    return 3;
   } else if(x2 < x1 && y2 <= y1) {
-    quad = 4;
+    return 4;
   }
-  return [ slope, quad ];
 }
 
 function getSlopeMap(px, py) {
@@ -25,7 +28,8 @@ function getSlopeMap(px, py) {
   for(let y = 0; y < space.length; y++) {
     for(let x = 0; x < space[y].length; x++) {
       if(!(x === px && y === py) && space[y][x] === '#') {
-        const [ slope, quad ] = findSlope([px, py], [x, y]);
+        const slope = findSlope([px, py], [x, y]);
+        const quad = findQuadrant([px, py], [x, y]);
         const key = slope + ',' + quad;
         if(!slopeMap.has(key)) {
           slopeMap.set(key, [[x, y]]);
@@ -44,9 +48,9 @@ function getSlopeMap(px, py) {
   return slopeMap;
 }
 
-function getOrderedSlopesByQuad(slopeMap, targetQuad) {
+function getSlopesByQuad(slopeMap, targetQuad) {
   const result = [];
-  for(let key of slopeMap.keys()) {
+  for(const [ key ] of slopeMap) {
     const [ slope, quad ] = key.split(',').map(n => parseFloat(n));
     if(quad === targetQuad) {
       result.push(slope);
@@ -65,7 +69,7 @@ function findNthVaporizedPoint(point, n) {
   const slopeMap = getSlopeMap(...point);
   while(slopeMap.size > 0) {
     for(let i = 1; i <= 4; i++) {
-      const slopes = getOrderedSlopesByQuad(slopeMap, i);
+      const slopes = getSlopesByQuad(slopeMap, i);
       for(const slope of slopes) {
         const key = slope + ',' + i;
         const points = slopeMap.get(key);
