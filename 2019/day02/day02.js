@@ -33,6 +33,9 @@ for(let i = 0; i < 100; i++) {
       break;
     }
   }
+  if(answer2) {
+    break;
+  }
 }
 
 console.log(`Answer 1: ${answer1}`); // 6568671

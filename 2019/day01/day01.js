@@ -1,11 +1,9 @@
 import { readFileSync } from 'fs';
 
 const input = readFileSync('./day01/day01-input.txt', 'utf-8');
-const masses = input.split('\r\n').map(massStr => parseInt(massStr));
+const masses = input.split('\n').map(n => parseInt(n));
 
-function fuelCost(mass) {
-  return Math.floor(mass / 3) - 2;
-}
+const fuelCost = mass => (Math.floor(mass / 3) - 2);
 
 const answer1 = masses.reduce((sum, mass) => {
   return sum + fuelCost(mass);
