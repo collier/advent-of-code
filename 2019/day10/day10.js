@@ -1,15 +1,15 @@
 import { readFileSync } from 'fs';
 
 const input = readFileSync('./day10/day10-input.txt', 'utf-8');
-const space = input.split('\r\n').map(row => row.split(''));
+const grid = input.split('\r\n').map(row => row.split(''));
 
-function findSlope(p1, p2) {
+function getSlope(p1, p2) {
   const [ x1, y1 ] = p1;
   const [ x2, y2 ] = p2;
   return (y2 - y1) / (x2 - x1);
 }
 
-function findQuadrant(p1, p2) {
+function getQuadrant(p1, p2) {
   const [ x1, y1 ] = p1;
   const [ x2, y2 ] = p2;
   if(x2 >= x1 && y2 < y1) {
@@ -37,33 +37,33 @@ function comparePointsDesc(p1, p2) {
 
 function getSlopeMap(p) {
   const [ px, py ] = p;
-  const slopeMap = new Map();
-  space.forEach((row, y) => {
-    row.forEach((cell, x) => {
+  const smap = new Map();
+  grid.forEach((r, y) => {
+    r.forEach((cell, x) => {
       if(!(x === px && y === py) && cell === '#') {
-        const slope = findSlope(p, [x, y]);
-        const quad = findQuadrant(p, [x, y]);
-        const key = slope + ',' + quad;
-        const currentPoints = slopeMap.has(key) ? slopeMap.get(key) : [];
-        const updatedPoints = [...currentPoints, [x, y]];
-        if(quad === 1 || quad === 4) {
-          updatedPoints.sort(comparePointsAsc);
+        const s = getSlope(p, [x, y]);
+        const q = getQuadrant(p, [x, y]);
+        const key = s + ',' + q;
+        const val = smap.has(key) ? smap.get(key) : [];
+        const points = [...val, [x, y]];
+        if(q === 1 || q === 4) {
+          points.sort(comparePointsAsc);
         } else {
-          updatedPoints.sort(comparePointsDesc);
+          points.sort(comparePointsDesc);
         }
-        slopeMap.set(key, updatedPoints);
+        smap.set(key, points);
       }
     })
   })
-  return slopeMap;
+  return smap;
 }
 
-function getSlopesByQuad(slopeMap, targetQuad) {
-  const slopes = [];
-  for(const [ key ] of slopeMap) {
-    const [ slope, quad ] = key.split(',').map(n => parseFloat(n));
-    if(quad === targetQuad) {
-      slopes.push(slope);
+function getSlopes(slopeMap, quad) {
+  let slopes = [];
+  for(const [ k ] of slopeMap) {
+    const [ s, q ] = k.split(',').map(n => parseFloat(n));
+    if(q === quad) {
+      slopes.push(s);
     }
   }
   slopes.sort((a, b) => a - b);
@@ -73,57 +73,49 @@ function getSlopesByQuad(slopeMap, targetQuad) {
   return slopes;
 }
 
-function findHighestVisibilityAsteroid() {
+function bestAsteroid() {
   let max = 0;
-  let maxPoint;
-  space.forEach((row, y) => {
-    row.forEach((cell, x) => {
+  let point;
+  grid.forEach((r, y) => {
+    r.forEach((cell, x) => {
       if(cell === '#') {
-        const visibleAsteroids = getSlopeMap([x, y]).size;
-        if(visibleAsteroids > max) {
-          max = visibleAsteroids;
-          maxPoint = [x, y];
+        const count = getSlopeMap([x, y]).size;
+        if(count > max) {
+          max = count;
+          point = [x, y];
         }
       }
     });
   });
-  return [ max, maxPoint ];
+  return [ max, point ];
 }
 
-function findNthVaporizedPoint(point, n) {
-  let vaporizedCount = 0;
-  let lastVaporized;
-  const slopeMap = getSlopeMap(point);
-  while(slopeMap.size) {
-    for(let i = 1; i <= 4; i++) {
-      const slopes = getSlopesByQuad(slopeMap, i);
-      for(const slope of slopes) {
-        const key = slope + ',' + i;
-        const points = slopeMap.get(key);
-        lastVaporized = points.pop();
-        vaporizedCount++;
-        if(vaporizedCount === n) {
-          break;
+function vaporizedPoint(point, n) {
+  let count = 0;
+  let activeP;
+  const smap = getSlopeMap(point);
+  while(smap.size) {
+    for(let q = 1; q <= 4; q++) {
+      const slopes = getSlopes(smap, q);
+      for(const s of slopes) {
+        const key = s + ',' + q;
+        const points = smap.get(key);
+        activeP = points.pop();
+        count++;
+        if(count === n) {
+          return activeP;
         }
         if(!points.length) {
-          slopeMap.delete(key);
+          smap.delete(key);
         }
       }
-      if(vaporizedCount === n) {
-        break;
-      }
-    }
-    if(vaporizedCount === n) {
-      break;
     }
   }
-  return lastVaporized;
 }
 
-const [ maxVisibleAsteroids, maxPoint ] = findHighestVisibilityAsteroid();
-const [ vapX, vapY ] = findNthVaporizedPoint(maxPoint, 200);
-const answer1 = maxVisibleAsteroids;
-const answer2 = (vapX * 100) + vapY;
+const [ max, bestPoint ] = bestAsteroid();
+const [ vX, vY ] = vaporizedPoint(bestPoint, 200);
+const answer2 = (vX * 100) + vY;
 
-console.log(`Answer 1: ${answer1}`); // 247
+console.log(`Answer 1: ${max}`); // 247
 console.log(`Answer 2: ${answer2}`); // 1919

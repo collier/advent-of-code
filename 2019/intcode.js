@@ -1,7 +1,7 @@
-function fillZeros(arr, index) {
-  if(index >= arr.length) {
-    const zeros = index - arr.length + 1;
-    arr.push(...new Array(zeros).fill(0));
+function fillZeros(arr, i) {
+  if(i >= arr.length) {
+    const count = i - arr.length + 1;
+    arr.push(...new Array(count).fill(0));
   }
 }
 
