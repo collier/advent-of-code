@@ -23,51 +23,78 @@ function findQuadrant(p1, p2) {
   }
 }
 
-function getSlopeMap(px, py) {
+function comparePointsAsc(p1, p2) {
+  const [ x1, y1 ] = p1;
+  const [ x2, y2 ] = p2;
+  return (x1 + y1) - (x2 + y2);
+}
+
+function comparePointsDesc(p1, p2) {
+  const [ x1, y1 ] = p1;
+  const [ x2, y2 ] = p2;
+  return (x2 + y2) - (x1 + y1);
+}
+
+function getSlopeMap(p) {
+  const [ px, py ] = p;
   const slopeMap = new Map();
-  for(let y = 0; y < space.length; y++) {
-    for(let x = 0; x < space[y].length; x++) {
-      if(!(x === px && y === py) && space[y][x] === '#') {
-        const slope = findSlope([px, py], [x, y]);
-        const quad = findQuadrant([px, py], [x, y]);
+  space.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      if(!(x === px && y === py) && cell === '#') {
+        const slope = findSlope(p, [x, y]);
+        const quad = findQuadrant(p, [x, y]);
         const key = slope + ',' + quad;
-        if(!slopeMap.has(key)) {
-          slopeMap.set(key, [[x, y]]);
+        const currentPoints = slopeMap.has(key) ? slopeMap.get(key) : [];
+        const updatedPoints = [...currentPoints, [x, y]];
+        if(quad === 1 || quad === 4) {
+          updatedPoints.sort(comparePointsAsc);
         } else {
-          const newPoints = [...slopeMap.get(key), [x, y]];
-          if(quad === 1 || quad === 4) {
-            newPoints.sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]));
-          } else {
-            newPoints.sort((a, b) => (b[0] + b[1]) - (a[0] + a[1]));
-          }
-          slopeMap.set(key, newPoints);
+          updatedPoints.sort(comparePointsDesc);
         }
+        slopeMap.set(key, updatedPoints);
       }
-    }
-  }
+    })
+  })
   return slopeMap;
 }
 
 function getSlopesByQuad(slopeMap, targetQuad) {
-  const result = [];
+  const slopes = [];
   for(const [ key ] of slopeMap) {
     const [ slope, quad ] = key.split(',').map(n => parseFloat(n));
     if(quad === targetQuad) {
-      result.push(slope);
+      slopes.push(slope);
     }
   }
-  result.sort((a, b) => a - b);
-  if(result[result.length - 1] === Infinity) {
-    result.unshift(result.pop());
+  slopes.sort((a, b) => a - b);
+  if(slopes[slopes.length - 1] === Infinity) {
+    slopes.unshift(slopes.pop());
   }
-  return result;
+  return slopes;
+}
+
+function findHighestVisibilityAsteroid() {
+  let max = 0;
+  let maxPoint;
+  space.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      if(cell === '#') {
+        const visibleAsteroids = getSlopeMap([x, y]).size;
+        if(visibleAsteroids > max) {
+          max = visibleAsteroids;
+          maxPoint = [x, y];
+        }
+      }
+    });
+  });
+  return [ max, maxPoint ];
 }
 
 function findNthVaporizedPoint(point, n) {
   let vaporizedCount = 0;
   let lastVaporized;
-  const slopeMap = getSlopeMap(...point);
-  while(slopeMap.size > 0) {
+  const slopeMap = getSlopeMap(point);
+  while(slopeMap.size) {
     for(let i = 1; i <= 4; i++) {
       const slopes = getSlopesByQuad(slopeMap, i);
       for(const slope of slopes) {
@@ -91,23 +118,6 @@ function findNthVaporizedPoint(point, n) {
     }
   }
   return lastVaporized;
-}
-
-function findHighestVisibilityAsteroid() {
-  let max = 0;
-  let maxPoint;
-  for(let y = 0; y < space.length; y++) {
-    for(let x = 0; x < space[y].length; x++) {
-      if(space[y][x] === '#') {
-        const visibleAsteroids = getSlopeMap(x, y).size;
-        if(visibleAsteroids > max) {
-          max = visibleAsteroids;
-          maxPoint = [x, y];
-        }
-      }
-    }
-  }
-  return [ max, maxPoint ];
 }
 
 const [ maxVisibleAsteroids, maxPoint ] = findHighestVisibilityAsteroid();
