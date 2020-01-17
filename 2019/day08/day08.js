@@ -50,7 +50,11 @@ for(let j = 0; j < height; j++) {
     for(let i = 0; i < layerCount; i++) {
       const layerDigit = layers[j][k][i];
       if(layerDigit === 0 || layerDigit === 1) {
-        image[j][k] = layerDigit;
+        if(layerDigit === 0) {
+          image[j][k] = ' ';
+        } else {
+          image[j][k] = '0';
+        }
         break;
       }
     }
