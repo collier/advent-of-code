@@ -7,7 +7,7 @@ const initMemory = input.split(',').map(n => parseInt(n));
 function amp(phase, inputSignal) {
   const memo = initMemory.slice();
   const { output } = intcode({
-    initMemory: memo, 
+    memory: memo, 
     inputs: [phase, inputSignal]
   });
   return output;
@@ -32,9 +32,9 @@ function ampF(ampId, inputSignal, phase, loopCount) {
   const { lastIndex, lastMemory, lastOutput } = ampState[ampId];
   const inputs = loopCount === 0 ? [phase, inputSignal] : [inputSignal]; 
   const { output, index, opcode, memory } = intcode({
-    initMemory: lastMemory, 
+    memory: lastMemory, 
     inputs: inputs, 
-    startingIndex: lastIndex, 
+    index: lastIndex, 
     stopOnFirstOutput: true
   });
   ampState[ampId] = { 
