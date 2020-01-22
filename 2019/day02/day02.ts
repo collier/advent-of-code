@@ -1,10 +1,10 @@
 import { readFileSync } from 'fs';
 
 const input = readFileSync('./day02/day02-input.txt', 'utf-8');
-const initMemory = input.split(',').map(n => parseInt(n));
+const memory = input.split(',').map(n => parseInt(n));
 
-function intcode(initMemory, noun, verb) {
-  let memo = initMemory.slice();
+function intcode(memory: number[], noun: number, verb: number): number {
+  let memo = memory.slice();
   memo[1] = noun;
   memo[2] = verb;
   for (let i = 0; i < memo.length; i += 4) {
@@ -19,17 +19,16 @@ function intcode(initMemory, noun, verb) {
       memo[memo[i+3]] = memo[memo[i+1]] * memo[memo[i+2]];
     }
   }
-  return [memo[0], memo[1], memo[2]];
+  return memo[0];
 }
 
-const answer1 = intcode(initMemory, 12, 2)[0];
+const answer1 = intcode(memory, 12, 2);
 
-let answer2;
+let answer2: number | undefined;
 for(let i = 0; i < 100; i++) {
   for(let j = 0; j < 100; j++) {
-    const result = intcode(initMemory, i, j);
-    if(result[0] === 19690720) {
-      answer2 = 100 * result[1] + result[2];
+    if(intcode(memory, i, j) === 19690720) {
+      answer2 = 100 * i + j;
       break;
     }
   }

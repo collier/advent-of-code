@@ -1,9 +1,4 @@
-/**
- * Modifies an array beyond its original length by filling missing entries with
- * zeros.
- * @param {number[]} arr - The array that will be expanded.
- * @param {number} index - The index to which arr should be filled with zeros.
- */
+
 function fillZeros(arr, i) {
   if(i >= arr.length) {
     const count = i - arr.length + 1;
@@ -11,9 +6,23 @@ function fillZeros(arr, i) {
   }
 }
 
+function formatModes(modeStr) {
+  let modes;
+  if(modesStr.length === 0) {
+    modes = '000';
+  } else if(modesStr.length === 1) {
+    modes = '00' + modesStr;
+  } else if(modesStr.length === 2) {
+    modes = '0' + modesStr;
+  } else {
+    modes = modesStr;
+  }
+  return modes.split('').reverse();
+}
+
 /**
  * @typedef {Object} IntcodeResult
- * @property {number} output - The last output of the intcode program
+ * @property {number[]} outputs - The outputs of the intcode program
  * @property {number} index - The last index of the intcode program
  * @property {string} lastOpcode - The last opcode used by the intcode program
  * @property {number[]} memory - Dump of the intcode program memory at time of completion
@@ -39,24 +48,17 @@ export default function({
   let i = index;
   let inputIndex = 0;
   let relativeBase = 0;
-  let lastOutput;
+  let outputs = [];
   let lastOpcode;
   let lastMemo;
 
   while(i < memo.length) {
     const instructions = memo[i].toString();
-    let opcode = instructions.substring(instructions.length - 2);
-    let modesStr = instructions.substring(0, instructions.length - 2);
-    opcode = opcode.length === 1 ? '0' + opcode : opcode;
+    const opcodeStr = instructions.substring(instructions.length - 2);
+    const modesStr = instructions.substring(0, instructions.length - 2);
+    const opcode = opcodeStr.length === 1 ? '0' + opcodeStr : opcodeStr;
+    const modes = formatModes(modesStr);
     lastOpcode = opcode;
-    if(modesStr.length === 0) {
-      modesStr = '000';
-    } else if(modesStr.length === 1) {
-      modesStr = '00' + modesStr;
-    } else if(modesStr.length === 2) {
-      modesStr = '0' + modesStr;
-    }
-    const modes = modesStr.split('').reverse();
     const paramIndicies = modes.map((mode, modeIndex) => {
       const memoIndex = i + modeIndex + 1;
       let paramIndex;
@@ -82,8 +84,7 @@ export default function({
       inputIndex++;
       i += 2;
     } else if(opcode === '04') { // output
-      // console.log(`Output: ${params[0]}`);
-      lastOutput = params[0];
+      outputs.push(params[0])
       i += 2;
       if(stopOnFirstOutput) {
         break;
@@ -114,5 +115,10 @@ export default function({
     }
     lastMemo = memo;
   }
-  return {output: lastOutput, index: i, opcode: lastOpcode, memory: lastMemo};
+  return {
+    outputs, 
+    index: i, 
+    opcode: lastOpcode, 
+    memory: lastMemo
+  };
 }

@@ -1,9 +1,7 @@
-const start = 353096;
-const end = 843212;
 let part1Count = 0;
 let part2Count = 0;
 
-for(let i = start; i < end; i++) {
+for(let i = 353096; i < 843212; i++) {
   const num = i.toString().split('');
   let isIncreasing = true;
   let hasDouble1 = false;
@@ -39,5 +37,5 @@ for(let i = start; i < end; i++) {
   }
 }
 
-console.log(`Answer 1 is: ${part1Count}`); //579
-console.log(`Answer 2 is: ${part2Count}`); //358
+console.log(`Answer 1 is: ${part1Count}`); // 579
+console.log(`Answer 2 is: ${part2Count}`); // 358
