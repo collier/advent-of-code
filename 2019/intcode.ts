@@ -1,56 +1,53 @@
 
-function fillZeros(arr, i) {
+function fillZeros(arr: any[], i: number) {
   if(i >= arr.length) {
     const count = i - arr.length + 1;
     arr.push(...new Array(count).fill(0));
   }
 }
 
-function formatModes(modeStr) {
+function formatModes(mode: string): string[] {
   let modes;
-  if(modesStr.length === 0) {
+  if(mode.length === 0) {
     modes = '000';
-  } else if(modesStr.length === 1) {
-    modes = '00' + modesStr;
-  } else if(modesStr.length === 2) {
-    modes = '0' + modesStr;
+  } else if(mode.length === 1) {
+    modes = '00' + mode;
+  } else if(mode.length === 2) {
+    modes = '0' + mode;
   } else {
-    modes = modesStr;
+    modes = mode;
   }
   return modes.split('').reverse();
 }
 
-/**
- * @typedef {Object} IntcodeResult
- * @property {number[]} outputs - The outputs of the intcode program
- * @property {number} index - The last index of the intcode program
- * @property {string} lastOpcode - The last opcode used by the intcode program
- * @property {number[]} memory - Dump of the intcode program memory at time of completion
- */
+interface IntcodeConfig {
+  memory: number[];
+  inputs?: number[];
+  index?: number; 
+  stopOnFirstOutput?: boolean;
+}
 
-/**
- * Runs an intcode program, according to the parameters defined in the config 
- * object.
- * @param {Object} config - Defines the intial state and behavior of the intcode program.
- * @param {number[]} config.memory - Initial state of the memory of the intcode program.
- * @param {number[]} config.inputs - Inputs provided to the intcode program.
- * @param {number} config.index - Initial index within the memory which the intcode program should start.
- * @param {boolean} config.stopOnFirstOutput - Should the intcode program return on the first output.
- * @returns {IntcodeResult} - Final state of the intcode program after completion.
- */
-export default function({ 
-  memory, 
-  inputs, 
-  index = 0, 
-  stopOnFirstOutput = false
-}) {
+interface IntcodeResult {
+  outputs: number[];
+  index: number;
+  opcode?: string; 
+  memory: number[];
+}
+
+export default function(config: IntcodeConfig): IntcodeResult {
+  const { 
+    memory, 
+    inputs = [], 
+    index = 0, 
+    stopOnFirstOutput = false 
+  } = config;
   const memo = memory.slice();
   let i = index;
   let inputIndex = 0;
   let relativeBase = 0;
   let outputs = [];
   let lastOpcode;
-  let lastMemo;
+  let lastMemo = memo;
 
   while(i < memo.length) {
     const instructions = memo[i].toString();
@@ -61,15 +58,18 @@ export default function({
     lastOpcode = opcode;
     const paramIndicies = modes.map((mode, modeIndex) => {
       const memoIndex = i + modeIndex + 1;
-      let paramIndex;
       if(mode === '0') { // positional
+        const paramIndex = memo[memoIndex];
         fillZeros(memo, paramIndex);
-        return memo[memoIndex];
+        return paramIndex;
       } else if(mode === '1') { // immediate
         return memoIndex;
       } else if(mode === '2') { // relative
+        const paramIndex = memo[memoIndex] + relativeBase;
         fillZeros(memo, paramIndex);
-        return memo[memoIndex] + relativeBase;
+        return paramIndex;
+      } else {
+        return -1;
       }
     });
     const params = paramIndicies.map(paramIndex => memo[paramIndex]);
