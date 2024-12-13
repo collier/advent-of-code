@@ -1,4 +1,4 @@
-const input = await Deno.readTextFile("./input/day01-part1.txt");
+const input = await Deno.readTextFile("./input/day01.txt");
 
 const [l1, l2] = input.split("\n").map((row) => row.split("   ")).reduce(
   (accm, tuple) => {
