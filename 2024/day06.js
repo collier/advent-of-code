@@ -1,19 +1,19 @@
-const input = await Deno.readTextFile("./input/day06.txt");
+// const input = await Deno.readTextFile("./input/day06.txt");
 
-const g = { x: 85, y: 48 };
+// const g = { x: 85, y: 48 };
 
-// const input = `....#.....
-// .........#
-// ..........
-// ..#.......
-// .......#..
-// ..........
-// .#..^.....
-// ........#.
-// #.........
-// ......#...`;
+const input = `....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...`;
 
-// const g = { x: 4, y: 6 };
+const g = { x: 4, y: 6 };
 
 const grid = input.split("\n").map((line) => line.split(""));
 
@@ -21,48 +21,51 @@ const rows = grid.length, cols = grid[0].length;
 
 const UP = "^", RIGHT = ">", DOWN = "v", LEFT = "<", X = "X";
 
-while (g.x > 0 && g.y > 0 && g.x < cols - 1 && g.y < rows - 1) {
-  if (grid[g.y][g.x] === UP) {
-    if (grid[g.y - 1][g.x] === "#") {
+while (g.x >= 0 && g.y >= 0 && g.x <= cols - 1 && g.y <= rows - 1) {
+  if (grid[g.y][g.x] === UP || g.y === 0) {
+    if (g.y > 0 && grid[g.y - 1][g.x] === "#") {
       grid[g.y][g.x] = RIGHT;
     } else {
-      grid[g.y - 1][g.x] = UP;
       grid[g.y][g.x] = X;
       g.y--;
+      if (g.y > 0) grid[g.y][g.x] = UP;
     }
+    continue;
   }
 
-  if (grid[g.y][g.x] === RIGHT) {
-    if (grid[g.y][g.x + 1] === "#") {
+  if (grid[g.y][g.x] === RIGHT || g.x === cols - 1) {
+    if (g.x < cols - 1 && grid[g.y][g.x + 1] === "#") {
       grid[g.y][g.x] = DOWN;
     } else {
-      grid[g.y][g.x + 1] = RIGHT;
       grid[g.y][g.x] = X;
       g.x++;
+      if (g.x < cols - 1) grid[g.y][g.x] = RIGHT;
     }
+    continue;
   }
 
-  if (grid[g.y][g.x] === DOWN) {
-    if (grid[g.y + 1][g.x] === "#") {
+  if (grid[g.y][g.x] === DOWN || g.y === cols - 1) {
+    if (g.y < rows - 1 && grid[g.y + 1][g.x] === "#") {
       grid[g.y][g.x] = LEFT;
     } else {
-      grid[g.y + 1][g.x] = DOWN;
       grid[g.y][g.x] = X;
       g.y++;
+      if (g.y < rows - 1) grid[g.y][g.x] = DOWN;
     }
+    continue;
   }
 
-  if (grid[g.y][g.x] === LEFT) {
-    if (grid[g.y][g.x - 1] === "#") {
+  if (grid[g.y][g.x] === LEFT || g.x === 0) {
+    if (g.x > 0 && grid[g.y][g.x - 1] === "#") {
       grid[g.y][g.x] = UP;
     } else {
-      grid[g.y][g.x - 1] = LEFT;
       grid[g.y][g.x] = X;
       g.x--;
+      if (g.x > 0) grid[g.y][g.x] = LEFT;
     }
+    continue;
   }
 }
-grid[g.y][g.x] = X;
 
 let part1 = 0;
 for (let y = 0; y < rows; y++) {
